@@ -1368,7 +1368,6 @@ function run() {
         try {
             const githubToken = core.getInput('github_token', { required: true });
             const uploadUrl = core.getInput('upload_url', { required: true });
-            const releaseUrl = core.getInput('release_url', { required: true });
             const assetPath = core.getInput('asset_path', { required: true });
             const assetName = core.getInput('asset_name');
             const assetContentType = core.getInput('asset_content_type');
@@ -1376,7 +1375,6 @@ function run() {
             const output = yield upload_release_asset_1.upload({
                 githubToken,
                 uploadUrl,
-                releaseUrl,
                 assetPath,
                 assetName,
                 assetContentType,
@@ -3962,7 +3960,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseUploadUrl = exports.canonicalName = exports.upload = void 0;
+exports.getApiBaseUrl = exports.parseUploadUrl = exports.canonicalName = exports.upload = void 0;
 const fs = __importStar(__webpack_require__(747));
 const path = __importStar(__webpack_require__(622));
 const url = __importStar(__webpack_require__(835));
@@ -4018,7 +4016,8 @@ const getRelease = (params) => __awaiter(void 0, void 0, void 0, function* () {
             Accept: 'application/vnd.github.v3+json'
         }
     });
-    const resp = yield client.request('GET', params.releaseUrl, '', {});
+    const url = `${getApiBaseUrl()}/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`;
+    const resp = yield client.request('GET', url, '', {});
     const statusCode = resp.message.statusCode;
     const contents = yield resp.readBody();
     if (statusCode !== 200) {
@@ -4079,8 +4078,11 @@ function validateFilenames(files, opts) {
         // get assets already uploaded
         const assets = {};
         const getter = opts.getRelease || getRelease;
+        const { owner, repo, releaseId } = parseUploadUrl(opts.uploadUrl);
         const release = yield getter({
-            releaseUrl: opts.releaseUrl,
+            owner,
+            repo,
+            releaseId,
             githubToken: opts.githubToken
         });
         release.data.assets.forEach(asset => {
@@ -4170,6 +4172,10 @@ function parseUploadUrl(rawurl) {
     };
 }
 exports.parseUploadUrl = parseUploadUrl;
+function getApiBaseUrl() {
+    return process.env['GITHUB_API_URL'] || 'https://api.github.com';
+}
+exports.getApiBaseUrl = getApiBaseUrl;
 
 
 /***/ })
