@@ -62,6 +62,7 @@ const uploadReleaseAsset = async (
   if (params.name) {
     u.searchParams.append('name', params.name)
   }
+  core.debug(u.toString())
   const resp = await client.request(
     'POST',
     u.toString(),

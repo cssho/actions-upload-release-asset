@@ -3983,6 +3983,7 @@ const uploadReleaseAsset = (params) => __awaiter(void 0, void 0, void 0, functio
     if (params.name) {
         u.searchParams.append('name', params.name);
     }
+    core.debug(u.toString());
     const resp = yield client.request('POST', u.toString(), params.data, params.headers);
     const statusCode = resp.message.statusCode;
     const contents = yield resp.readBody();
